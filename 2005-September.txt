@@ -1,0 +1,284 @@
+From victor.stinner at haypocalc.com  Mon Sep 19 02:12:22 2005
+From: victor.stinner at haypocalc.com (Victor STINNER)
+Date: Mon, 19 Sep 2005 02:12:22 +0200
+Subject: [Happyboom-dev] =?ISO-8859-1?Q?Diff=E9rentes?= versions du protocole
+ =?ISO-8859-1?Q?r=E9seau?=
+Message-ID: <1127088743.22865.12.camel@haypopc>
+
+Salut,
+
+J'ouvre la liste de diffusion HappyBoom (youpi !) avec une question
+soulev?e par Dave sur IRC (ou plut?t une remarque pertinente) : faire
+transiter des entiers sur le r?seau, c'est bof. Pourquoi ne pas faire
+transiter des cha?nes de caract?re ?
+
+Au sujet de game.stop() qui est envoy? comme (1, 2) et pas ("game",
+"stop").
+
+Le probl?me est qu'un ancien client qui se connecte ? un serveur r?cent
+ne va rien comprend alors que pourtant il connait cette fonction.
+
+Pour rappel, le protocol actuel est blanc (c'est *exactement* la m?me
+version de protocole) ou noir (client refus?).
+
+---
+
+Moi j'aime bien faire transiter des entiers sur le r?seau et utiliser
+une table de hashage au codage/d?codage pour retrouver une cha?ne de
+caract?re. C'est pour limiter la taille des paquets (bon, on se tait
+Olivier dans le fond avec ton XML hein ;-)). Le soucis est plus "comment
+remplir cette table ?".
+
+Je pense que le client devrait envoyer carr?ment son protocole, et le
+serveur s'occuperait de s'adapter pour lui envoyer les donn?es selon son
+protocole. S'adapter signifit plusieurs choses :
+
+(1) Refuser le client s'il veut des fonctionnalit?s mais son protocole
+est non compatible. Exemple : il veut "character" mais ne g?re pas
+"character.move(x: int, y:int)" (car on est pass? en x: float et
+y:float). Contre-exemple : le client est accept? s'il veut character
+mais ne g?re pas character.setName(name) (car un jeu peut fonctionner
+sans que le nom des joueurs soit attribu?).
+
+(2) Cr?er la table d'encodage/d?codage selon le protocole du client
+(c?d. utiliser *ses* identifiants)
+
+(3) N'envoyer que ce que le client g?re. Exemple : la nouvelle
+fonctionnalit? character.setColor(r,v,b) ne sera pas envoy? ? un client
+qui ne la g?re pas.
+
+---
+
+Damien propose que ce soit le serveur qui envoie ce qu'il g?re (et donc
+que ce soit le client qui s'adapte je suppose). Pourquoi pas, c'est
+discutable, mais l? je suis fatigu? pour y r?fl?chir :-)
+
+Bon, voil?, c'est parti pour les r?ponses !!!
+
+
+---
+
+Bienvenue aux nouveaux, merci de vous pr?senter ;-)
+
+Victor Stinner, surnomm? haypo, vient d'Alsace et est ?tudiant ? l'UTBM
+(5e ann?e d'une ?cole d'ing?nieur)
+
+
+
+From victor.stinner at haypocalc.com  Mon Sep 19 02:29:44 2005
+From: victor.stinner at haypocalc.com (Victor STINNER)
+Date: Mon, 19 Sep 2005 02:29:44 +0200
+Subject: [Happyboom-dev] Technique du "dead reckoning"
+Message-ID: <1127089784.22865.30.camel@haypopc>
+
+Salut,
+
+Ce soir je suis chaud (enfin, malade aussi, mais c'est une histoire).
+Hop, un deuxi?me email.
+
+Toujours en discutant avec Dave sur IRC (c'?tait juste apr?s le probl?me
+de protocole en fait), ce dernier m'a parl? de "dead reckoning". Alors
+l?, je ne connaissais paaaaas du point. Il m'a donc expliqu? ?a. En
+gros, c'est une m?thode pour interpoler les actions d'un joueur pour que
+le client ne se bloque pas d?s que quelques paquets sont perdus en
+route, mais fait "comme si" la connexion restait ouverte.
+
+Alors, ? ce que j'en ai compris ...
+
+- Ceux sont des ?v?nements d'une priorit? inf?rieure ? ceux du serveur
+(ceux du serveur sont les plus importants)
+
+- Ca permet de r?duire le "lag" (d?synchronisation client - serveur)
+
+- On utilise diff?rents param?tres (ex: angle, vitesse, acc?l?ration,
+"?ge du capitaine", ...) pour estimer les ?v?nements qui vont suivre
+
+- Ca permet de limiter l'?cart entre la situation r?elle et la situation
+"estim?e", mais seulement pendant un court instant (on peut pas couper
+le fil et continuer ? jouer une heure non plus ;-))
+
+- Il est possible de rendre le "dead reckoning" transparant pour le jeu
+(c'est un couche bas-niveau du jeu)
+
+Voil? voil? pour cette id?e int?ressante. Je voulais en laisser des
+traces quelques part, pour la retrouver en cas de besoin ;-)
+
+---
+
+J'avais d?j? penser ? faire ?a pour BoomBoom, mais en plus l?ger bien
+s?r : on calcule la trajectoire la banane c?t? client, et le serveur n'a
+besoin d'envoyer des paquets que toutes les secondes, et non plus "aussi
+vite que possible". Bien s?r, le dernier paquet "collision" doit arriver
+le plus vite possible sous peine que la banane travers le mur (pas
+cool). Mais avec un peu d'astuce (id?e : mettre le client 1/2 seconde en
+retard sur le serveur), on peut rendre cela tout ? fait possible.
+
+Damien : ?a r?pond un peu ? ton id?e de "mettre plus de logique du c?t?
+client" ?
+
+Victor
+
+
+
+From ulukyn at gmail.com  Mon Sep 19 11:58:30 2005
+From: ulukyn at gmail.com (Nuno)
+Date: Mon, 19 Sep 2005 11:58:30 +0200
+Subject: [Happyboom-dev] Technique du "dead reckoning"
+In-Reply-To: <1127089784.22865.30.camel@haypopc>
+References: <1127089784.22865.30.camel@haypopc>
+Message-ID: <41cebeb305091902581ecfc1af@mail.gmail.com>
+
+Salut,
+
+Alors avant tout je me presente:
+
+Nuno Gon?alves, Drancy (93)
+En contrat de professionnalisation Admin System Microsoft MCSE (?a
+aussi c'est une histoire... )... enfin, comme j'ai d?missionn?, je
+serait plut?t ? la recherche d'une nouvelle entgreprise...
+
+Sinon,  qu'on se rassure je bosse sous Debian (j'ai fait ma formation
+MCSE en administrant des serveurs Linux dans mon ex-boite... )
+
+Bon, les presentations faites, j'copie-colle l'id?e d'un gars sur le
+"dead reckoning" :
+---
+L'id?e du dead reckoning est simple : au lieu d'envoyer juste
+l'emplacement d'une entit?,
+une machine envoie un message qui contient l'emplacement de l'entit?,
+une estampille
+temporelle, et un vecteur vitesse. En utilisant cette information,
+chaque h?te dans le r?seau
+peut alors extrapoler l'emplacement de l'entit? sans mises ? jour
+suppl?mentaires. Ceci peut
+?tre fait pour l'orientation de l'entit? aussi bien que pour l'emplacement.
+Chaque entit? g?re sa propre simulation, et ?galement le mod?le
+pr?dictif de son propre
+comportement (extrapolation utilisant les donn?es envoy?es sur le
+r?seau). Elle compare
+l'emplacement calcul? par les deux mod?les ; quand ils divergent de
+plus qu'une certaine
+quantit?, elle envoie une nouvelle mise ? jour sur le r?seau pour
+signaler sa nouvelle position
+aux autres entit?s.
+Le dead reckoning produit des r?sultats significatifs. Puisque des
+mises ? jour sont
+seulement envoy?es lorsque c'est n?cessaire, la quantit? de trafic est
+consid?rablement
+r?duite. Ce mod?le est bien adapt? aux simulations de guerre car les
+entit?s sont des v?hicules
+et des projectiles qui r?pondent bien aux r?gles d'utilisation du dead
+reckoning (leur vecteur
+vitesse reste constant pendant de long moments).
+6.1.1.Impl?mentation
+Je suis parti d'une simulation de tank d?velopp? ? l'IRI.T, qui
+utilise la RTI du DMSO
+comme syst?me de distribution.
+Au niveau de l'impl?mentation, j'ai ajout? une classe TankGhost qui
+permet d'associer un
+tank fant?me ? un tank local. Ainsi lorsque la distance euclidienne
+entre le tank local et le
+tank fant?me est sup?rieur ? un seuil fix? alors une mise ? jour sera
+envoy?e sur le r?seau
+pour pr?venir autres participants de sa nouvelle position.
+---
+l'article complet : http://phamdavid.free.fr/documents/rapport_dea.pdf
+
+Un autre article : http://www.irit.fr/~Patrice.Torguet/cours/vrml/RVD.ppt
+utilise aussi la m?thode objet r?el/objet fant?me mais avec du code
+source (java) en exemple.
+
+Voil?, c'?tait juste pour l'id?e... ? mediter
+
+
+2005/9/19, Victor STINNER <victor.stinner at haypocalc.com>:
+> Salut,
+> 
+> Ce soir je suis chaud (enfin, malade aussi, mais c'est une histoire).
+> Hop, un deuxi?me email.
+> 
+> Toujours en discutant avec Dave sur IRC (c'?tait juste apr?s le probl?me
+> de protocole en fait), ce dernier m'a parl? de "dead reckoning". Alors
+> l?, je ne connaissais paaaaas du point. Il m'a donc expliqu? ?a. En
+> gros, c'est une m?thode pour interpoler les actions d'un joueur pour que
+> le client ne se bloque pas d?s que quelques paquets sont perdus en
+> route, mais fait "comme si" la connexion restait ouverte.
+> 
+> Alors, ? ce que j'en ai compris ...
+> 
+> - Ceux sont des ?v?nements d'une priorit? inf?rieure ? ceux du serveur
+> (ceux du serveur sont les plus importants)
+> 
+> - Ca permet de r?duire le "lag" (d?synchronisation client - serveur)
+> 
+> - On utilise diff?rents param?tres (ex: angle, vitesse, acc?l?ration,
+> "?ge du capitaine", ...) pour estimer les ?v?nements qui vont suivre
+> 
+> - Ca permet de limiter l'?cart entre la situation r?elle et la situation
+> "estim?e", mais seulement pendant un court instant (on peut pas couper
+> le fil et continuer ? jouer une heure non plus ;-))
+> 
+> - Il est possible de rendre le "dead reckoning" transparant pour le jeu
+> (c'est un couche bas-niveau du jeu)
+> 
+> Voil? voil? pour cette id?e int?ressante. Je voulais en laisser des
+> traces quelques part, pour la retrouver en cas de besoin ;-)
+> 
+> ---
+> 
+> J'avais d?j? penser ? faire ?a pour BoomBoom, mais en plus l?ger bien
+> s?r : on calcule la trajectoire la banane c?t? client, et le serveur n'a
+> besoin d'envoyer des paquets que toutes les secondes, et non plus "aussi
+> vite que possible". Bien s?r, le dernier paquet "collision" doit arriver
+> le plus vite possible sous peine que la banane travers le mur (pas
+> cool). Mais avec un peu d'astuce (id?e : mettre le client 1/2 seconde en
+> retard sur le serveur), on peut rendre cela tout ? fait possible.
+> 
+> Damien : ?a r?pond un peu ? ton id?e de "mettre plus de logique du c?t?
+> client" ?
+> 
+> Victor
+> 
+> _______________________________________________
+> Happyboom-dev mailing list
+> Happyboom-dev at lists.berlios.de
+> http://lists.berlios.de/mailman/listinfo/happyboom-dev
+>
+
+
+From victor.stinner at haypocalc.com  Tue Sep 20 01:00:26 2005
+From: victor.stinner at haypocalc.com (Victor STINNER)
+Date: Tue, 20 Sep 2005 01:00:26 +0200
+Subject: [Happyboom-dev] Quelques =?ISO-8859-1?Q?sch=E9mas?=
+Message-ID: <1127170826.11887.5.camel@haypopc>
+
+Pour faciliter la lecture du code, j'ai dessin? quelques sch?mas :
+
+(1) Sch?ma "pseudo-UML" sur le cheminement des informations depuis le
+r?seau jusqu'aux agents
+http://www.happyboom.org/Image:Happyboom_communication.png
+
+(2) Sch?ma UML de la librairie net (TCP ou UDP)
+http://www.happyboom.org/Image:Happyboom_net.png
+
+La partie (1) est bas? sur le code du serveur, mais le client utilise
+une approche similaire (il n'y pas de ClientManager par contre, et le
+code de la classe "Gateway" est diff?rent).
+
+Damien, les sch?mas sur les diagrammes d'?tat, je les supprime ?
+http://www.happyboom.org/tmp/socket_at_server_side.png
+http://www.happyboom.org/tmp/client.png
+http://www.happyboom.org/tmp/server.png
+
+---
+
+Hey Damien : j'ai install? Eclipse avec Pydev + Subclipse. C'est trop
+g?nial, ?a marche super. Par contre, j'ai eu de nombreux soucis,
+principalement car j'utilise d'anciennes versions de Eclipse (le paquet
+Debian n'est pas du tout ? jour) et de Java (JRE 1.4 avec un m?lange de
+Blackdown 1.4.1 : j'ai tout vir? et j'ai mis un JRE 1.5).
+
+Victor
+
+
+

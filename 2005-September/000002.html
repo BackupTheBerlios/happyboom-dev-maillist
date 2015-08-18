@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Happyboom-dev] Technique du &quot;dead reckoning&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/happyboom-dev/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:happyboom-dev%40lists.berlios.de?Subject=Re%3A%20%5BHappyboom-dev%5D%20Technique%20du%20%22dead%20reckoning%22&In-Reply-To=%3C41cebeb305091902581ecfc1af%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Happyboom-dev] Technique du &quot;dead reckoning&quot;</H1>
+    <B>Nuno</B> 
+    <A HREF="mailto:happyboom-dev%40lists.berlios.de?Subject=Re%3A%20%5BHappyboom-dev%5D%20Technique%20du%20%22dead%20reckoning%22&In-Reply-To=%3C41cebeb305091902581ecfc1af%40mail.gmail.com%3E"
+       TITLE="[Happyboom-dev] Technique du &quot;dead reckoning&quot;">ulukyn at gmail.com
+       </A><BR>
+    <I>Mon Sep 19 11:58:30 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Happyboom-dev] Technique du &quot;dead reckoning&quot;
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[Happyboom-dev] Quelques sch&#233;mas
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Salut,
+
+Alors avant tout je me presente:
+
+Nuno Gon&#231;alves, Drancy (93)
+En contrat de professionnalisation Admin System Microsoft MCSE (&#231;a
+aussi c'est une histoire... )... enfin, comme j'ai d&#233;missionn&#233;, je
+serait plut&#244;t &#224; la recherche d'une nouvelle entgreprise...
+
+Sinon,  qu'on se rassure je bosse sous Debian (j'ai fait ma formation
+MCSE en administrant des serveurs Linux dans mon ex-boite... )
+
+Bon, les presentations faites, j'copie-colle l'id&#233;e d'un gars sur le
+&quot;dead reckoning&quot; :
+---
+L'id&#233;e du dead reckoning est simple : au lieu d'envoyer juste
+l'emplacement d'une entit&#233;,
+une machine envoie un message qui contient l'emplacement de l'entit&#233;,
+une estampille
+temporelle, et un vecteur vitesse. En utilisant cette information,
+chaque h&#244;te dans le r&#233;seau
+peut alors extrapoler l'emplacement de l'entit&#233; sans mises &#224; jour
+suppl&#233;mentaires. Ceci peut
+&#234;tre fait pour l'orientation de l'entit&#233; aussi bien que pour l'emplacement.
+Chaque entit&#233; g&#232;re sa propre simulation, et &#233;galement le mod&#232;le
+pr&#233;dictif de son propre
+comportement (extrapolation utilisant les donn&#233;es envoy&#233;es sur le
+r&#233;seau). Elle compare
+l'emplacement calcul&#233; par les deux mod&#232;les ; quand ils divergent de
+plus qu'une certaine
+quantit&#233;, elle envoie une nouvelle mise &#224; jour sur le r&#233;seau pour
+signaler sa nouvelle position
+aux autres entit&#233;s.
+Le dead reckoning produit des r&#233;sultats significatifs. Puisque des
+mises &#224; jour sont
+seulement envoy&#233;es lorsque c'est n&#233;cessaire, la quantit&#233; de trafic est
+consid&#233;rablement
+r&#233;duite. Ce mod&#232;le est bien adapt&#233; aux simulations de guerre car les
+entit&#233;s sont des v&#233;hicules
+et des projectiles qui r&#233;pondent bien aux r&#232;gles d'utilisation du dead
+reckoning (leur vecteur
+vitesse reste constant pendant de long moments).
+6.1.1.Impl&#233;mentation
+Je suis parti d'une simulation de tank d&#233;velopp&#233; &#224; l'IRI.T, qui
+utilise la RTI du DMSO
+comme syst&#232;me de distribution.
+Au niveau de l'impl&#233;mentation, j'ai ajout&#233; une classe TankGhost qui
+permet d'associer un
+tank fant&#244;me &#224; un tank local. Ainsi lorsque la distance euclidienne
+entre le tank local et le
+tank fant&#244;me est sup&#233;rieur &#224; un seuil fix&#233; alors une mise &#224; jour sera
+envoy&#233;e sur le r&#233;seau
+pour pr&#233;venir autres participants de sa nouvelle position.
+---
+l'article complet : <A HREF="http://phamdavid.free.fr/documents/rapport_dea.pdf">http://phamdavid.free.fr/documents/rapport_dea.pdf</A>
+
+Un autre article : <A HREF="http://www.irit.fr/~Patrice.Torguet/cours/vrml/RVD.ppt">http://www.irit.fr/~Patrice.Torguet/cours/vrml/RVD.ppt</A>
+utilise aussi la m&#233;thode objet r&#233;el/objet fant&#244;me mais avec du code
+source (java) en exemple.
+
+Voil&#224;, c'&#233;tait juste pour l'id&#233;e... &#224; mediter
+
+
+2005/9/19, Victor STINNER &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/happyboom-dev">victor.stinner at haypocalc.com</A>&gt;:
+&gt;<i> Salut,
+</I>&gt;<i> 
+</I>&gt;<i> Ce soir je suis chaud (enfin, malade aussi, mais c'est une histoire).
+</I>&gt;<i> Hop, un deuxi&#232;me email.
+</I>&gt;<i> 
+</I>&gt;<i> Toujours en discutant avec Dave sur IRC (c'&#233;tait juste apr&#232;s le probl&#232;me
+</I>&gt;<i> de protocole en fait), ce dernier m'a parl&#233; de &quot;dead reckoning&quot;. Alors
+</I>&gt;<i> l&#224;, je ne connaissais paaaaas du point. Il m'a donc expliqu&#233; &#231;a. En
+</I>&gt;<i> gros, c'est une m&#233;thode pour interpoler les actions d'un joueur pour que
+</I>&gt;<i> le client ne se bloque pas d&#232;s que quelques paquets sont perdus en
+</I>&gt;<i> route, mais fait &quot;comme si&quot; la connexion restait ouverte.
+</I>&gt;<i> 
+</I>&gt;<i> Alors, &#224; ce que j'en ai compris ...
+</I>&gt;<i> 
+</I>&gt;<i> - Ceux sont des &#233;v&#233;nements d'une priorit&#233; inf&#233;rieure &#224; ceux du serveur
+</I>&gt;<i> (ceux du serveur sont les plus importants)
+</I>&gt;<i> 
+</I>&gt;<i> - Ca permet de r&#233;duire le &quot;lag&quot; (d&#233;synchronisation client - serveur)
+</I>&gt;<i> 
+</I>&gt;<i> - On utilise diff&#233;rents param&#232;tres (ex: angle, vitesse, acc&#233;l&#233;ration,
+</I>&gt;<i> &quot;&#226;ge du capitaine&quot;, ...) pour estimer les &#233;v&#233;nements qui vont suivre
+</I>&gt;<i> 
+</I>&gt;<i> - Ca permet de limiter l'&#233;cart entre la situation r&#233;elle et la situation
+</I>&gt;<i> &quot;estim&#233;e&quot;, mais seulement pendant un court instant (on peut pas couper
+</I>&gt;<i> le fil et continuer &#224; jouer une heure non plus ;-))
+</I>&gt;<i> 
+</I>&gt;<i> - Il est possible de rendre le &quot;dead reckoning&quot; transparant pour le jeu
+</I>&gt;<i> (c'est un couche bas-niveau du jeu)
+</I>&gt;<i> 
+</I>&gt;<i> Voil&#224; voil&#224; pour cette id&#233;e int&#233;ressante. Je voulais en laisser des
+</I>&gt;<i> traces quelques part, pour la retrouver en cas de besoin ;-)
+</I>&gt;<i> 
+</I>&gt;<i> ---
+</I>&gt;<i> 
+</I>&gt;<i> J'avais d&#233;j&#224; penser &#224; faire &#231;a pour BoomBoom, mais en plus l&#233;ger bien
+</I>&gt;<i> s&#251;r : on calcule la trajectoire la banane c&#244;t&#233; client, et le serveur n'a
+</I>&gt;<i> besoin d'envoyer des paquets que toutes les secondes, et non plus &quot;aussi
+</I>&gt;<i> vite que possible&quot;. Bien s&#251;r, le dernier paquet &quot;collision&quot; doit arriver
+</I>&gt;<i> le plus vite possible sous peine que la banane travers le mur (pas
+</I>&gt;<i> cool). Mais avec un peu d'astuce (id&#233;e : mettre le client 1/2 seconde en
+</I>&gt;<i> retard sur le serveur), on peut rendre cela tout &#224; fait possible.
+</I>&gt;<i> 
+</I>&gt;<i> Damien : &#199;a r&#233;pond un peu &#224; ton id&#233;e de &quot;mettre plus de logique du c&#244;t&#233;
+</I>&gt;<i> client&quot; ?
+</I>&gt;<i> 
+</I>&gt;<i> Victor
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> Happyboom-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/happyboom-dev">Happyboom-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/happyboom-dev">http://lists.berlios.de/mailman/listinfo/happyboom-dev</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Happyboom-dev] Technique du &quot;dead reckoning&quot;
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[Happyboom-dev] Quelques sch&#233;mas
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/happyboom-dev">More information about the Happyboom-dev
+mailing list</a><br>
+</body></html>
